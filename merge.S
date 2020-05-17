@@ -12,35 +12,20 @@ merge:
 	.frame	fp,40,ra
 	subu	sp,sp,40
 	.cprestore 24
-	sw	ra,32(sp)
+	sw	ra,32(sp)	
 	sw	fp,28(sp)
 	move	fp,sp
 
 	sw	a0,40(fp)	#direccion del array original
 	sw	a1,44(fp)	#size del array original
-	sll	a1,a1,2		#sizex4
-	sw	a1,48(fp)
 
-ask_memory:
-	lw	a0,44(fp)	#envio como parametro el array original
-	jal	mymalloc
-	sw	v0,20(fp)	#20(fp): direcci�n del array dinamico
-
-#cargo en el array local
-merge_1:
-	lw	a0,40(fp)	#array source
-	lw	a1,20(fp)	#array destino
-	lw	a2,48(fp)	#sizex4
-	jal	fill_array
-
-
-
-#modifico el array original
-merge_2:
-	lw	a0,20(fp)	#source
-	lw	a1,40(fp)	#destino
-	lw	a2,48(fp)	#size
-	jal 	fill_array
+call_merge:
+	lw	a0,40(fp)	#a0: array dir
+	li	a1,0		#a1: left_index =  0
+	lw	a2,44(fp)	#a2: right_index
+	lw	a3,44(fp)	#a3: max size
+	addiu	a2,a2,-1	#a2: right index-1
+	jal merge_sort
 
 fin:
 	lw	ra,32(sp)
