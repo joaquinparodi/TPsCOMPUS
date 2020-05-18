@@ -16,12 +16,5 @@ int main(){
 		printf("Modificado:%d\n", nums[i]);
 	}
 
-
-	printf("---------------------------------\n");
-
-	for (int i=0; i<SIZE; i++){
-		printf("Temporal:%d\n", ptr[i]);
-	}
-
 	return 0;
 }

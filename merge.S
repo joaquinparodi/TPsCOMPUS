@@ -26,6 +26,11 @@ call_merge:
 	lw	a3,44(fp)	#a3: max size
 	addiu	a2,a2,-1	#a2: right index-1
 	jal merge_sort
+	sw	v0,20(fp)	#guardo puntero al temporal al liberar
+
+free_memory:
+	lw	a0,20(fp)	#cargo el temporal
+	jal	myfree
 
 fin:
 	lw	ra,32(sp)
