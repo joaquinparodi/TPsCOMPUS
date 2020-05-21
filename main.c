@@ -15,6 +15,7 @@ int* convertir_a_vector(char* cadena){
 	temp = strtok(cadena, sep);
 
 	int i = 0;
+
 	while(temp != NULL){
 		vector[i] = atoi(temp);
 		i++;
@@ -23,12 +24,53 @@ int* convertir_a_vector(char* cadena){
 	return vector;
 }
 
+void leer_archivo(const char* filename){
+
+    int len_linea = 0;
+
+    char c;
+
+    FILE * archivo = fopen (filename,"r");
+
+    while (c!=EOF){
+        while (c!=EOF){
+            c = fgetc(archivo);
+
+            if (c=='\n'){
+                fseek(archivo,-(len_linea)*sizeof(char),SEEK_CUR);
+                break;
+                }
+
+            len_linea++;
+        }
+
+        if (c!=EOF){
+            char linea [len_linea];
+            fgets(linea,len_linea,archivo);
+
+            int* vector = convertir_a_vector(linea);
+            for (int i=0;i<=3;i++){
+                printf("%i\n",vector[i]);
+            }
+            free(vector);
+
+            len_linea=0;
+            fseek(archivo,sizeof(char),SEEK_CUR);
+        }
+    }
+
+    printf("sali");
+    fclose(archivo);
+}
+
 int main(int argc, char *argv[]){
-	char cadena[7] = "1 2 3 4";
+	/*char cadena[] = "1 2 3 4";
 	int* vector = convertir_a_vector(cadena);
 	for (int i=0;i<=3;i++){
 		printf("%i\n",vector[i]);
 	}
-	free(vector);
+	free(vector);*/
+
+	leer_archivo("prueba.txt");
 	return 0;
 }
