@@ -11,7 +11,7 @@ int* convertir_a_vector(char* cadena){
             len_cadena++;
         }
 
-		else if( isdigit(cadena[j])==0 && (cadena[j]!='-')  || (cadena[j]=='-') && isdigit(cadena[j+1])==0){
+		else if( (isdigit(cadena[j])==0 && (cadena[j]!='-'))  || (cadena[j]=='-') && isdigit(cadena[j+1])==0){
             fprintf( stderr, "ERROR: Uno o más datos del archivo no son válidos, por ejemeplo el simbolo %c no se corresponde con un número.", cadena[j]);
             exit(EXIT_FAILURE);
         }
@@ -88,7 +88,7 @@ void leer_archivo(const char* filename){
 
             int* vector = convertir_a_vector(linea);
             int len_vector=obtener_largo_vector(vector);
-            //int* ptr = merge(vector_final, len_vector_final);
+            merge(vector, len_vector);
             imprimir_vector(vector,len_vector);
 
             free(vector);
