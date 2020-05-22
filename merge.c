@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+
+void merge(int* vector, int len_vector);
+
 int* convertir_a_vector(char* cadena){
 	int len_cadena = 0;
 	for(int j = 0; (cadena[j] != '\0');j++){
