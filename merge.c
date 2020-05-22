@@ -83,7 +83,6 @@ void leer_archivo(const char* filename){
         }
 
         if (c!=EOF){
-
             char linea [len_linea];
             fgets(linea,len_linea,archivo);
             int* vector = convertir_a_vector(linea);
