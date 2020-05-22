@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 
-//void merge(int* vector, int len_vector);
+void merge(int* vector, int len_vector);
 
 void help(){
     printf("Usage:\n");
@@ -92,7 +92,7 @@ void process_line(char* line,FILE* dfile){
     int* vector = to_vector(line);
     int len_vector=vector_len(vector);
     if (vector[0]!='\0'){
-    //merge(vector, len_vector);
+    merge(vector, len_vector);
     }
     if (dfile==NULL){
         print_vector(vector);
@@ -138,14 +138,14 @@ char* read_line(FILE* file){
 
 void process_file(char* filename,char* destination){
     FILE* dfile=NULL;
-    if (destination!="Unspecified"){
+    if (strcmp(destination,"Unspecified") != 0){
         dfile= fopen(destination,"w+");
         if (!dfile){
             fprintf( stderr, "ERROR: no se ha podido crear el archivo en la ruta especificada");
         }
     }
     FILE* file;
-    if (filename=="stdin"){
+    if (strcmp(filename,"stdin") == 0){
         file=stdin;
     }
     else{
@@ -157,10 +157,10 @@ void process_file(char* filename,char* destination){
         free(line);
         line= read_line(file);
     }
-    if (filename!="stdin"){
+    if (strcmp(filename,"stdin") != 0){
         fclose(file);
     }
-    if (destination!="Unspecified"){
+    if (strcmp(destination,"Unspecified") != 0){
         fclose(dfile);
     }
 }
