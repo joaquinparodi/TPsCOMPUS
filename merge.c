@@ -83,25 +83,20 @@ void leer_archivo(const char* filename){
         }
 
         if (c!=EOF){
+
             char linea [len_linea];
             fgets(linea,len_linea,archivo);
-            if (linea!=""){
-                int* vector = convertir_a_vector(linea);
-                int len_vector=obtener_largo_vector(vector);
-                //merge(vector, len_vector);
-                imprimir_vector(vector,len_vector);
-
-                free(vector);
-            }
-            else{
-                printf("\n");
-            }
-
-            len_linea=0;
-
-            fseek(archivo,sizeof(char),SEEK_CUR);
+            int* vector = convertir_a_vector(linea);
+            int len_vector=obtener_largo_vector(vector);
+            //merge(vector, len_vector);
+            imprimir_vector(vector,len_vector);
+            free(vector);
         }
-    }
+
+        len_linea=0;
+
+        fseek(archivo,sizeof(char),SEEK_CUR);
+        }
 
     fclose(archivo);
 }
