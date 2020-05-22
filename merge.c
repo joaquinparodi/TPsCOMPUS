@@ -4,56 +4,71 @@
 #include <ctype.h>
 
 
-void merge(int* vector, int len_vector);
+//void merge(int* vector, int len_vector);
 
-int* convertir_a_vector(char* cadena){
-	int len_cadena = 0;
-	for(int j = 0; (cadena[j] != '\0');j++){
+void help(){
+    printf("Usage:\n");
+    printf("	tp1 -h\n");
+    printf("	tp1 -V\n");
+    printf("	tp1 -i in_file -o out_file\n");
+    printf("Options:\n");
+    printf("	-V, --version	Print version and quit.\n");
+    printf("	-h, --help	Print this information and quit.\n");
+    printf("	-i, --input	Specify input stream/file, '-' for stdin.\n");
+    printf("	-o, --output	Specify output stream/file, '-' for stdout.\n");
+    printf("Examples:\n");
+    printf("	tp1 < in.txt > out.txt\n");
+    printf("	cat in.txt | tp1 -i - > out.txt\n");
+}
 
-		if(cadena[j] == ' '){
-            len_cadena++;
+
+
+
+int* to_vector(char* string){
+	int len_string = 0;
+	for(int j = 0; (string[j] != '\n');j++){
+		if(string[j] == ' '){
+            len_string++;
         }
-
-		else if( (isdigit(cadena[j])==0 && (cadena[j]!='-'))  || ((cadena[j]=='-') && isdigit(cadena[j+1])==0)){
-            fprintf( stderr, "ERROR: Uno o más datos del archivo no son válidos, por ejemeplo el simbolo %c no se corresponde con un número.", cadena[j]);
+		else if( (isdigit(string[j])==0 && (string[j]!='-'))  || ((string[j]=='-') && isdigit(string[j+1])==0)){
+            fprintf( stderr, "ERROR: Uno o más datos del archivo no son válidos, por ejemeplo el simbolo %c no se corresponde con un número.", string[j]);
             exit(EXIT_FAILURE);
         }
 	}
-
-	int* vector = (int*) malloc (sizeof(int)*(len_cadena+1));
+	int* vector = malloc (sizeof(int)*(len_string));
 	if (!vector){
         fprintf(stderr, "ERROR: No se pudo reservar la memoria suficiente.");
         exit(EXIT_FAILURE);
 	}
-
 	const char sep[2] = " ";
 	char *temp;
-	temp = strtok(cadena, sep);
-
+	temp = strtok(string, sep);
 	int i = 0;
-
 	while(temp != NULL){
 		vector[i] = atoi(temp);
 		i++;
 		temp = strtok(NULL, sep);
 	}
+
 	return vector;
 }
 
-int obtener_largo_vector(int* vector){
-    int i=0;
 
+
+
+int vector_len(int* vector){
+    int i=0;
     while (vector[i]!='\0'){
         i ++;
     }
-
     return i;
 }
 
 
-void imprimir_vector(int* vector,int len_vector){
+
+void print_vector(int* vector){
     int i=0;
-    while (i<len_vector){
+    while (vector[i]!='\0'){
         printf("%i ", vector[i]);
         i++;
     }
@@ -61,77 +76,149 @@ void imprimir_vector(int* vector,int len_vector){
 }
 
 
-void leer_archivo(const char* filename){
+void write_file(int* vector,FILE* dfile){
+    int i=0;
+    while(vector[i]!='\0'){
+        char numero [10];
+        sprintf(numero, "%i", vector[i]);
+        fputs(numero,dfile);
+        i++;
+    }
+    fputs("\n",dfile);
+}
 
-    int len_linea = 0;
 
+void process_line(char* line,FILE* dfile){
+    int* vector = to_vector(line);
+    int len_vector=vector_len(vector);
+    if (vector[0]!='\0'){
+    //merge(vector, len_vector);
+    }
+    if (dfile==NULL){
+        print_vector(vector);
+    }
+    else{
+        write_file(vector,dfile);
+    }
+    free(vector);
+}
+
+
+
+char* read_line(FILE* file){
+    int tam=100;
+    char* line= malloc(sizeof(char)*tam);
+    if (!line){
+        fprintf( stderr, "ERROR: No se puedo reservar memoria suficente para la lectura de la linea");
+    }
     char c;
-
-    FILE * archivo = fopen (filename,"r");
-    if(!archivo){
-        fprintf( stderr, "ERROR: No se pudo encontrar el archivo, verifique la ruta e intentelo nuevamente.");
-        exit(EXIT_FAILURE);
+    int pos=0;
+    int count=1;
+    c = fgetc(file);
+    if (c==EOF){
+        return NULL;
+    }
+    while (c!='\n'){
+        if (count==100){
+            tam=tam+100;
+            line=realloc(line,tam*sizeof(char));
+            count=1;
         }
+        line[pos]=c;
+        pos++;
+        count++;
+        c = fgetc(file);
+    }
+    line[pos]=c;
+    return line;
+}
 
-    while (c!=EOF){
-        while (c!=EOF){
-            c = fgetc(archivo);
 
-            len_linea++;
 
-            if (c=='\n'){
-                fseek(archivo,-(len_linea)*sizeof(char),SEEK_CUR);
-                break;
-                }
-        }
 
-        if (c!=EOF && len_linea>1){
-            char linea [len_linea];
-            fgets(linea,len_linea,archivo);
-            if (strcmp(linea,"\n") != 0){
-                int* vector = convertir_a_vector(linea);
-                int len_vector=obtener_largo_vector(vector);
-                merge(vector, len_vector);
-                imprimir_vector(vector,len_vector);
-
-                free(vector);
-            }
-            else{
-                printf("\n");
-            }
-
-            len_linea=0;
-
-            fseek(archivo,sizeof(char),SEEK_CUR);
+void process_file(char* filename,char* destination){
+    FILE* dfile=NULL;
+    if (destination!="Unspecified"){
+        dfile= fopen(destination,"w+");
+        if (!dfile){
+            fprintf( stderr, "ERROR: no se ha podido crear el archivo en la ruta especificada");
         }
     }
-
-    fclose(archivo);
+    FILE* file;
+    if (filename=="stdin"){
+        file=stdin;
+    }
+    else{
+        file = fopen(filename,"r");
+    }
+    char*line= read_line(file);
+    while(line!=NULL){
+        process_line(line,dfile);
+        free(line);
+        line= read_line(file);
+    }
+    if (filename!="stdin"){
+        fclose(file);
+    }
+    if (destination!="Unspecified"){
+        fclose(dfile);
+    }
 }
+
+
+
 
 int main(int argc, char *argv[]){
 
-	if(strcmp(argv[1],"-V") == 0){
+    //stdin salida por pantalla
+    if(!argv[1]){
+        process_file("stdin","Unspecified");
+    }
+
+    //stdin salida por archivo
+    else if (strcmp(argv[1],"-o") == 0){
+        if (!argv[2]){
+        fprintf( stderr, "ERROR: ingrese la ruta del archivo de salida");
+        exit(EXIT_FAILURE);
+        }
+        process_file("stdin",argv[2]);
+    }
+
+    // version
+	else if(strcmp(argv[1],"-V") == 0){
 		printf("versión TP1 Organización de computadoras\n");
 		return 0;
 	}
-	if(strcmp(argv[1],"-h") == 0){
-		printf("Usage:\n");
-		printf("	tp1 -h\n");
-		printf("	tp1 -V\n");
-		printf("	tp1 -i in_file -o out_file\n");
-		printf("Options:\n");
-		printf("	-V, --version	Print version and quit.\n");
-		printf("	-h, --help	Print this information and quit.\n");
-		printf("	-i, --input	Specify input stream/file, '-' for stdin.\n");
-		printf("	-o, --output	Specify output stream/file, '-' for stdout.\n");
-		printf("Examples:\n");
-		printf("	tp1 < in.txt > out.txt\n");
-		printf("	cat in.txt | tp1 -i - > out.txt\n");
+
+	//help
+	else if(strcmp(argv[1],"-h") == 0){
+		help();
 		return 0;
 	}
-	if(strcmp(argv[1],"-i") == 0){
-		leer_archivo(argv[2]);
+
+	//entrada por archivo y salida por pantalla o por archivo
+	else if(strcmp(argv[1],"-i") == 0){
+         if(!argv[2]){
+            fprintf( stderr, "ERROR: ingrese la ruta del archivo de entrada");
+            exit(EXIT_FAILURE);
+         }
+         if (!argv[3]){
+            process_file(argv[2],"Unspecified");
+         }
+		 else if(strcmp(argv[3],"-o") == 0){
+            if (!argv[4]){
+                fprintf( stderr, "ERROR: ingrese la ruta del archivo de salida");
+                exit(EXIT_FAILURE);
+            }
+            process_file(argv[2],argv[4]);
+		}
+
+	}
+
+	else{
+        fprintf( stderr, "ERROR: uno o más parámetros son incorrectos");
+        exit(EXIT_FAILURE);
+
 	}
 
 	return 0;
