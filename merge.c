@@ -92,6 +92,7 @@ void process_line(char* line,FILE* dfile){
         write_file(vector,dfile,len);
     }
     free(vector);
+    free(len);
 }
 
 
@@ -101,6 +102,7 @@ char* read_line(FILE* file){
     char* line= malloc(sizeof(char)*tam);
     if (!line){
         fprintf( stderr, "ERROR: No se puedo reservar memoria suficente para la lectura de la linea");
+        exit(EXIT_FAILURE);
     }
     char c;
     int pos=0;
@@ -133,6 +135,7 @@ void process_file(char* filename,char* destination){
         dfile= fopen(destination,"w+");
         if (!dfile){
             fprintf( stderr, "ERROR: no se ha podido crear el archivo en la ruta especificada");
+            exit(EXIT_FAILURE);
         }
     }
     FILE* file;
