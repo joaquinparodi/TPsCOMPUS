@@ -52,7 +52,6 @@ int* to_vector(char* string,int* len){
             break;
         }
 	}
-
     *len=i;
 	return vector;
 }
@@ -83,7 +82,7 @@ void write_file(int* vector,FILE* dfile,int*len){
 void process_line(char* line,FILE* dfile){
     int* len = malloc(sizeof(int));
     int* vector = to_vector(line,len);
-    if (len>0){
+    if (*len>0){
     //merge(vector, len_vector);
     }
     if (dfile==NULL){
