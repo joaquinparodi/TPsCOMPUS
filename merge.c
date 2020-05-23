@@ -31,13 +31,13 @@ int* to_vector(char* string,int* len){
             len_string++;
         }
 		else if( (isdigit(string[j])==0 && (string[j]!='-'))  || ((string[j]=='-') && isdigit(string[j+1])==0)){
-            fprintf( stderr, "ERROR: Uno o más datos del archivo no son válidos, por ejemeplo el simbolo %c no se corresponde con un número.", string[j]);
+            fprintf( stderr, "ERROR: Uno o más datos del archivo no son válidos, por ejemeplo el simbolo %c no se corresponde con un número.\n", string[j]);
             exit(EXIT_FAILURE);
         }
 	}
 	int* vector = malloc (sizeof(int)*(len_string));
 	if (!vector){
-        fprintf(stderr, "ERROR: No se pudo reservar la memoria suficiente.");
+        fprintf(stderr, "ERROR: No se pudo reservar la memoria suficiente.\n");
         exit(EXIT_FAILURE);
 	}
 	const char sep[2] = " ";
@@ -82,15 +82,19 @@ void write_file(int* vector,FILE* dfile,int*len){
 void process_line(char* line,FILE* dfile){
     int* len = malloc(sizeof(int));
     int* vector = to_vector(line,len);
-    printf("len: %i\n",*len);
+    //verifica si la linea esta vacía
+    if(*len == 1 && vector[0] == 0){
+    	fprintf( stderr, "ERROR: se insertó una línea vacía\n");
+        exit(EXIT_FAILURE);
+    }
     if (*len>0){
-    //merge(vector, len_vector);
+    	merge(vector, *len);
     }
     if (dfile==NULL){
-        //print_vector(vector,len);
+        print_vector(vector,len);
     }
     else{
-        //write_file(vector,dfile,len);
+        write_file(vector,dfile,len);
     }
     free(vector);
     free(len);
@@ -102,7 +106,7 @@ char* read_line(FILE* file){
     int tam=100;
     char* line= malloc(sizeof(char)*tam);
     if (!line){
-        fprintf( stderr, "ERROR: No se puedo reservar memoria suficente para la lectura de la linea");
+        fprintf( stderr, "ERROR: No se pudo reservar memoria suficente para la lectura de la linea");
         exit(EXIT_FAILURE);
     }
     char c;
@@ -130,12 +134,12 @@ char* read_line(FILE* file){
 
 
 
-void process_file(char* filename,char* destination){
+void process_file(char* filename, char* destination){
     FILE* dfile=NULL;
     if (strcmp(destination,"Unspecified") != 0){
         dfile= fopen(destination,"w+");
         if (!dfile){
-            fprintf( stderr, "ERROR: no se ha podido crear el archivo en la ruta especificada");
+            fprintf( stderr, "ERROR: no se ha podido crear el archivo en la ruta especificada\n");
             exit(EXIT_FAILURE);
         }
     }
@@ -145,6 +149,10 @@ void process_file(char* filename,char* destination){
     }
     else{
         file = fopen(filename,"r");
+    }
+    if (!file){
+        fprintf( stderr, "ERROR: no se encuentra el archivo de entrada\n");
+        exit(EXIT_FAILURE);
     }
     char*line= read_line(file);
     while(line!=NULL){
@@ -173,7 +181,7 @@ int main(int argc, char *argv[]){
     //stdin salida por archivo
     else if (strcmp(argv[1],"-o") == 0){
         if (!argv[2]){
-        fprintf( stderr, "ERROR: ingrese la ruta del archivo de salida");
+        fprintf( stderr, "ERROR: ingrese la ruta del archivo de salida\n");
         exit(EXIT_FAILURE);
         }
         process_file("stdin",argv[2]);
@@ -194,15 +202,16 @@ int main(int argc, char *argv[]){
 	//entrada por archivo y salida por pantalla o por archivo
 	else if(strcmp(argv[1],"-i") == 0){
          if(!argv[2]){
-            fprintf( stderr, "ERROR: ingrese la ruta del archivo de entrada");
+            fprintf( stderr, "ERROR: ingrese la ruta del archivo de entrada\n");
             exit(EXIT_FAILURE);
          }
+
          if (!argv[3]){
             process_file(argv[2],"Unspecified");
          }
 		 else if(strcmp(argv[3],"-o") == 0){
             if (!argv[4]){
-                fprintf( stderr, "ERROR: ingrese la ruta del archivo de salida");
+                fprintf( stderr, "ERROR: ingrese la ruta del archivo de salida\n");
                 exit(EXIT_FAILURE);
             }
             process_file(argv[2],argv[4]);
@@ -211,7 +220,7 @@ int main(int argc, char *argv[]){
 	}
 
 	else{
-        fprintf( stderr, "ERROR: uno o más parámetros son incorrectos");
+        fprintf( stderr, "ERROR: uno o más parámetros son incorrectos\n");
         exit(EXIT_FAILURE);
 
 	}
