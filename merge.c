@@ -24,7 +24,7 @@ void help(){
 
 
 
-int* to_vector(char* string){
+int* to_vector(char* string,int* len){
 	int len_string = 0;
 	for(int j = 0; (string[j] != '\n');j++){
 		if(string[j] == ' '){
@@ -44,31 +44,23 @@ int* to_vector(char* string){
 	char *temp;
 	temp = strtok(string, sep);
 	int i = 0;
-	while(temp != NULL){
+	while(strcmp(temp,"\n")!=0){
 		vector[i] = atoi(temp);
 		i++;
 		temp = strtok(NULL, sep);
+		if (!temp){
+            break;
+        }
 	}
 
+    *len=i;
 	return vector;
 }
 
 
-
-
-int vector_len(int* vector){
+void print_vector(int* vector,int* len){
     int i=0;
-    while (vector[i]!='\0'){
-        i ++;
-    }
-    return i;
-}
-
-
-
-void print_vector(int* vector){
-    int i=0;
-    while (vector[i]!='\0'){
+    while (i<*len){
         printf("%i ", vector[i]);
         i++;
     }
@@ -76,9 +68,9 @@ void print_vector(int* vector){
 }
 
 
-void write_file(int* vector,FILE* dfile){
+void write_file(int* vector,FILE* dfile,int*len){
     int i=0;
-    while(vector[i]!='\0'){
+    while(i<*len){
         char numero [10];
         sprintf(numero, "%i", vector[i]);
         fputs(numero,dfile);
@@ -89,16 +81,16 @@ void write_file(int* vector,FILE* dfile){
 
 
 void process_line(char* line,FILE* dfile){
-    int* vector = to_vector(line);
-    int len_vector=vector_len(vector);
-    if (vector[0]!='\0'){
-    merge(vector, len_vector);
+    int* len = malloc(sizeof(int));
+    int* vector = to_vector(line,len);
+    if (len>0){
+    //merge(vector, len_vector);
     }
     if (dfile==NULL){
-        print_vector(vector);
+        print_vector(vector,len);
     }
     else{
-        write_file(vector,dfile);
+        write_file(vector,dfile,len);
     }
     free(vector);
 }
