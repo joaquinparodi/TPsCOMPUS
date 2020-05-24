@@ -5,44 +5,6 @@
 .abicalls
 .text
 .align 2
-.globl fill_array
-.ent fill_array
-
-fill_array:
-	subu	sp,sp,40
-	sw	ra,32(sp)
-	sw	fp,28(sp)
-	.cprestore 24
-	move	fp,sp
-	
-	sw	a0,40(fp)	#:array	original
-	sw	a1,44(fp)	#:array a llenar
-	sw	a2,48(fp)	#:array size
-
-variables_set:
-	li	t0,0
-	lw	t1,48(fp)	#size
-	li	t2,0
-	lw	s0,40(fp)	# array original
-	lw	s1,44(fp)	# array a llenar
-
-array_loop:
-	bge	t0,t1,fill_array_return
-	lw	t2,0(s0)	#t2: elemento de array original
-	addiu	s0,s0,4		#Le sumo 4 a la direccion
-	sw	t2,0(s1)
-	addiu	s1,s1,4
-	addiu	t0,t0,4	
-	b array_loop
-
-fill_array_return:		#El array se modifica por referencia.
-	lw	ra,32(sp)
-	lw	fp,28(fp)
-	addu	sp,sp,40
-	j	ra
-	.end fill_array
-
-
 .globl	merge_sub_arrays
 .ent	merge_sub_arrays
 
