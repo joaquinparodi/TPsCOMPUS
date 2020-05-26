@@ -73,7 +73,7 @@ void write_file(int* vector,FILE* dfile,int*len){
         char numero [10];
         sprintf(numero, "%i", vector[i]);
         fputs(numero,dfile);
-	fputs(" ",dfile);
+        fputs(" ",dfile);
         i++;
     }
     fputs("\n",dfile);
@@ -82,6 +82,10 @@ void write_file(int* vector,FILE* dfile,int*len){
 
 void process_line(char* line,FILE* dfile){
     int* len = malloc(sizeof(int));
+    if(!len){
+        fprintf( stderr, "ERROR: no se pudo reservar memoria para almacenar la longitud del arreglo");
+        exit(EXIT_FAILURE);
+        }
     int* vector = to_vector(line,len);
     //verifica si la linea esta vacía
     if(*len == 1 && vector[0] == 0){
@@ -121,6 +125,10 @@ char* read_line(FILE* file){
         if (count==100){
             tam=tam+100;
             line=realloc(line,tam*sizeof(char));
+            if (!line){
+                fprintf( stderr, "ERROR: No se pudo almacenar la linea correctamente");
+                exit(EXIT_FAILURE);
+            }
             count=1;
         }
         line[pos]=c;
