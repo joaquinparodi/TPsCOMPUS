@@ -73,6 +73,7 @@ void write_file(int* vector,FILE* dfile,int*len){
         char numero [10];
         sprintf(numero, "%i", vector[i]);
         fputs(numero,dfile);
+	fputs(" ",dfile);
         i++;
     }
     fputs("\n",dfile);
