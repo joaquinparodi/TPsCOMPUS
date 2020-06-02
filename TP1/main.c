@@ -236,3 +236,122 @@ int main(int argc, char *argv[]){
 
 	return 0;
 }
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include "string.h"
+
+
+void help(){
+    printf("Usage:\n");
+    printf("	tp1 -h\n");
+    printf("	tp1 -V\n");
+    printf("	tp1 -i in_file -o out_file\n");
+    printf("Options:\n");
+    printf("	-V, --version	Print version and quit.\n");
+    printf("	-h, --help	Print this information and quit.\n");
+    printf("	-i, --input	Specify input stream/file, '-' for stdin.\n");
+    printf("	-o, --output	Specify output stream/file, '-' for stdout.\n");
+    printf("Examples:\n");
+    printf("	tp1 < in.txt > out.txt\n");
+    printf("	cat in.txt | tp1 -i - > out.txt\n");
+}
+
+bool strings_are_equal(char* str1, char* str2){
+    return strcmp(str1, str2) == 0;
+}
+
+#define HELP "-h"
+#define VERSION "-v"
+#define INPUT "-i"
+#define OUTPUT "-o"
+#define STD "-"
+#define BUFFER_SIZE 1000
+#define MAX_NUMS 100
+
+
+void get_numbers(char* line, int* vector);
+
+int get_length(char* line){
+    char buffer[BUFFER_SIZE];
+    strncpy(buffer, line, BUFFER_SIZE);
+    char* ptr;
+    int counter = 0;
+    ptr = strtok (buffer, " ");
+    while (ptr != NULL){
+        counter++;
+        ptr = strtok (NULL, " ");
+    }
+    return counter;
+}
+
+void get_numbers(char* line, int* vector) {
+    char* numString;
+    int counter = 0;
+    numString = strtok (line, " ");
+    while (numString != NULL){
+        int num = atoi(numString);
+        vector[counter] = num;
+        counter++;
+        numString = strtok(NULL, " ");
+    }
+}
+
+
+void read_file(FILE* stream){
+    char* line;
+    size_t bufSize = BUFFER_SIZE;
+    while(getline(&line, &bufSize, stream) != -1){
+        int vector[MAX_NUMS];
+        memset(vector, 0, sizeof(vector));
+        int actualVectorLength = get_length(line);
+        get_numbers(line, vector);
+        //ordenar
+
+        for (int i=0; i<actualVectorLength; i++){
+            printf("%d ", vector[i]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
+
+int main(int argc, char* argv[]) {
+    //char* execOption = argv[1];
+    char* execOption = "-i";
+
+    //if (argc <= 2){
+    if (false){
+        if (strings_are_equal(execOption, HELP)){
+            help();
+        } else if (strings_are_equal(execOption, VERSION)){
+            printf("Version");
+        } else {
+            printf("No deberia estar aca");
+        }
+    } else {
+        //char* in_file = argv[2];
+//        char* out_command = argv[3];
+//        char* out_file = argv[4];
+
+        char* in_file = "entrada.txt";
+        char* out_command = "-o";
+        char* out_file = "salida.txt";
+        
+
+        if (!strings_are_equal(in_file, STD)){
+            //FILE* in = fopen(in_file, "r+");
+            FILE* in = stdin;
+            read_file(in);
+        }
+
+        if (!strings_are_equal(out_file, STD)){
+            printf("Salida por archivo");
+        }
+    }
+
+    return 0;
+}
+
