@@ -279,10 +279,12 @@ int get_length(char* line){
     char* ptr;
     int counter = 0;
     ptr = strtok (buffer, " ");
-    while (ptr != NULL){
+    while (ptr != NULL && *ptr != '\n'){
         counter++;
         ptr = strtok (NULL, " ");
     }
+
+    printf("Counter: %d\n", counter);
     return counter;
 }
 
@@ -290,7 +292,7 @@ void get_numbers(char* line, int* vector) {
     char* numString;
     int counter = 0;
     numString = strtok (line, " ");
-    while (numString != NULL){
+    while (numString != NULL && *numString != '\n'){
         int num = atoi(numString);
         vector[counter] = num;
         counter++;
