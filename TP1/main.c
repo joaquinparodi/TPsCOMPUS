@@ -341,11 +341,14 @@ int main(int argc, char* argv[]) {
         char* out_file = "salida.txt";
         
 
+        FILE* in;
         if (!strings_are_equal(in_file, STD)){
-            //FILE* in = fopen(in_file, "r+");
-            FILE* in = stdin;
-            read_file(in);
+            in = fopen(in_file, "r+");
+        } else {
+            in = stdin;
         }
+
+        read_file(in);
 
         if (!strings_are_equal(out_file, STD)){
             printf("Salida por archivo");
