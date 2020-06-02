@@ -30,9 +30,9 @@ merge_sub_arrays:
 	sw	a2,48(fp)	#right index 1 
 	sw	a3,52(fp)	#left index 2
 	lw	t3,56(sp)	#right index 2, viene por stack en la 
-#posicion 16 del mismo. Luego hago 40 del actual stack para llegar a
-#al stack del caller. Esta en la 16 porque en las 16 anteriores estan
-#los primeros 4 parametros.
+				#posicion 16 del mismo. Luego hago 40 del actual stack para llegar a
+				#al stack del caller. Esta en la 16 porque en las 16 anteriores estan
+				#los primeros 4 parametros.
 	lw	t4,60(sp)	#max size: Hago lo mismo. 40+20
 	
 	sw	t3,56(fp)	#guardo right index
@@ -70,8 +70,8 @@ load_variables:
 	li	t9,0		#auxiliar acceso a array temporal
 
 while_elements_in_both_arrays:	#while(l<= l1 && r<=r2)
-	bgt	t5,t1,while_i_less_than_right_index_1	#condicion 1
-	bgt	t6,t3,while_i_less_than_right_index_1	#condicion 2
+	bgt	t5,t1,while_i_less_than_right_index_1	#condicion 1 (l<=r1)
+	bgt	t6,t3,while_i_less_than_right_index_1	#condicion 2 (r<=r2)
 	
 	lw	s0,40(fp)
 	addu	s0,s0,t5		#s0: dir de array[i]
@@ -210,6 +210,7 @@ merging_sub_arrays:
 	jal 	merge_sub_arrays
 
 return_merge_sort:
+	//v0 ya cargado
 	lw	ra,32(sp)
 	lw	fp,28(sp)
 	addiu	sp,sp,40
