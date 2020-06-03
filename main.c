@@ -96,12 +96,20 @@ void read_file(FILE* in_stream, FILE* out_stream, int out_mode){
         int vector[MAX_NUMS];
         memset(vector, 0, sizeof(vector));
         int actualVectorLength = get_length(line);
-        get_numbers(line, vector);
-
-        //merge del assembler
-        merge(vector, actualVectorLength);
-
-        write_vector(out_stream, vector, actualVectorLength, out_mode);
+	if (actualVectorLength != 0 && actualVectorLength != 1){
+		get_numbers(line, vector);
+		merge(vector, actualVectorLength);
+	}
+	
+	if (actualVectorLength == 0){
+		exit(0);
+	}
+	
+	if (actualVectorLength == 1){
+		printf("%s", line);
+	} else {
+		write_vector(out_stream, vector, actualVectorLength, out_mode);
+	}	
     }
 }
 
@@ -155,7 +163,7 @@ int main(int argc, char* argv[]) {
         }
 	} else {
 		in = stdin;
-		out = stdin;
+		out = stdout;
 		out_mode = STDOUT_MODE;
 	}
 
