@@ -99,7 +99,7 @@ void read_file(FILE* in_stream, FILE* out_stream, int out_mode){
         get_numbers(line, vector);
 
         //merge del assembler
-        //merge(vector, actualVectorLength);
+        merge(vector, actualVectorLength);
 
         write_vector(out_stream, vector, actualVectorLength, out_mode);
     }
