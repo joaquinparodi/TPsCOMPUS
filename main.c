@@ -5,6 +5,19 @@
 #include <ctype.h>
 #include <assert.h>
 
+#define HELP "-h"
+#define VERSION "-v"
+#define INPUT "-i"
+#define OUTPUT "-o"
+#define STD "-"
+#define BASE 10
+
+int* get_numbers(char* line, size_t capacity, int* amountOfNumbers);
+void write_vector(FILE* out_stream, int* vector, int length);
+void help();
+bool strings_are_equal(char* str1, char* str2);
+bool check_if_there_are_letters(char* buffer);
+
 
 void help(){
     printf("Usage:\n");
@@ -21,6 +34,15 @@ void help(){
     printf("	cat in.txt | tp1 -i - > out.txt\n");
 }
 
+bool check_if_there_are_letters(char* buffer){
+    char* endptr = NULL;
+    strtol(buffer, &endptr, BASE);
+
+    //chequeo el resultado de strtol, que detecta los caracteres
+    bool lettersFound = *endptr != '\0' || endptr == buffer;
+    return lettersFound;
+}
+
 bool strings_are_equal(char* str1, char* str2){
     if (str1 != NULL && str2 != NULL)
         return strcmp(str1, str2) == 0;
@@ -28,147 +50,132 @@ bool strings_are_equal(char* str1, char* str2){
     return false;
 }
 
-#define HELP "-h"
-#define VERSION "-v"
-#define INPUT "-i"
-#define OUTPUT "-o"
-#define STD "-"
-#define BUFFER_SIZE 1000
-#define MAX_NUMS 100
-#define MAX_NUMS_LENGTH 10
-#define STDOUT_MODE 1
-#define FILE_MODE 2
+void check_malloc(int size, void* ptr){
+    if (size != 0 && ptr == NULL){
+        fprintf(stderr, "Fallo al alocar memoria");
+        exit(-1);
+    }
+}
 
+int* get_numbers(char* line, size_t capacity, int* amountOfNumbers) {
+    bool lettersFound = false;
+    char* buffer = malloc(capacity * sizeof(char));
+    check_malloc(capacity, buffer);
 
-void get_numbers(char* line, int* vector);
-
-int get_length(char* line){
-    char buffer[BUFFER_SIZE];
-    strncpy(buffer, line, BUFFER_SIZE);
+    strncpy(buffer, line, capacity);
     char* ptr;
-    int counter = 0;
-    ptr = strtok (buffer, " ");
-    while (ptr != NULL && *ptr != '\n'){
-        counter++;
-        ptr = strtok (NULL, " ");
-    }
+    ptr = strtok (buffer, " \n");
 
-    return counter;
-}
+    int* vector = malloc(capacity * sizeof(int));
+    check_malloc(capacity, vector);
 
-void get_numbers(char* line, int* vector) {
-    char* numString;
-    int counter = 0;
-    numString = strtok (line, " ");
-    while (numString != NULL && *numString != '\n'){
-        int num = atoi(numString);
-        vector[counter] = num;
-        counter++;
-        numString = strtok(NULL, " ");
-    }
-}
-
-void write_vector(FILE* out_stream, int* vector, int length, int out_mode){
-    if (out_mode == FILE_MODE) {
-        for (int i = 0; i < length; i++) {
-            int actualValue = vector[i];
-            char str[MAX_NUMS_LENGTH];
-            memset(str, 0, MAX_NUMS_LENGTH);
-            sprintf(str, "%d", actualValue);
-            fputs(str, out_stream);
-            fputc(' ', out_stream);
+    int i = 0;
+    for (; ptr != NULL && *ptr != '\n' && !lettersFound; i++) {
+        if (i == capacity){
+            capacity += 10;
+            vector = (int*)realloc(vector, capacity*sizeof(int));
         }
-        fputc('\n', out_stream);
-    } else {
-        for (int i=0; i < length; i++) {
-            printf("%d ", vector[i]);
+        lettersFound = check_if_there_are_letters(ptr);
+        if (!lettersFound){
+            vector[i] = atoi(ptr);
+            ptr = strtok (NULL, " \n");
         }
-        printf("\n");
     }
+
+    if (lettersFound){
+        free(vector);
+        vector = NULL;
+    }
+
+    *amountOfNumbers = i;
+    free(buffer);
+    return vector;
 }
 
-void read_file(FILE* in_stream, FILE* out_stream, int out_mode){
-    char line[BUFFER_SIZE];
-    char* ptr = line;
-    size_t bufSize = BUFFER_SIZE;
-
-    while(getline(&ptr, &bufSize, in_stream) != -1){
-        int vector[MAX_NUMS];
-        memset(vector, 0, sizeof(vector));
-        int actualVectorLength = get_length(line);
-	if (actualVectorLength != 0 && actualVectorLength != 1){
-		get_numbers(line, vector);
-		merge(vector, actualVectorLength);
-	}
-	
-	if (actualVectorLength == 0){
-		exit(0);
-	}
-	
-	if (actualVectorLength == 1){
-		printf("%s", line);
-	} else {
-		write_vector(out_stream, vector, actualVectorLength, out_mode);
-	}	
+void write_vector(FILE* out_stream, int* vector, int length){
+    for (int i=0; i < length; i++) {
+        fprintf(out_stream,"%d ", vector[i]);
     }
+    fprintf(out_stream,"\n");
+}
+
+void read_file(FILE* in_stream, FILE* out_stream){
+    char* line = NULL;
+    size_t bufSize = 0;
+    bool letterFound = false;
+
+    while(!letterFound && (bufSize = getline(&line, &bufSize, in_stream)) != -1 && bufSize != 1){
+        int amountOfNumbers = 0;
+        int *vector = get_numbers(line, bufSize + 1,        //sumo 1 para evitar una lectura invalida en strtok
+                                      &amountOfNumbers);
+
+        letterFound = (vector == NULL);
+        if (!letterFound) {
+            //merge(vector, actualVectorLength);
+            write_vector(out_stream, vector, amountOfNumbers);
+            free(vector);
+        } else {
+            fprintf(stderr, "Se encontro una letra en el programa y se procede al cierre ordenado\n");
+        }
+    }
+    free(line);
 }
 
 
 int main(int argc, char* argv[]) {
-	FILE* in = NULL;
-	FILE* out = NULL;
-	int out_mode = 0;
+    FILE* in = stdin;
+    FILE* out = stdout;
 
-	char* execOption = argv[1];
-	if (execOption != NULL) {
-		if (strings_are_equal(execOption, HELP)){
+    char* execOption = argv[1];
+    if (execOption != NULL) {
+        if (strings_are_equal(execOption, HELP)) {
             help();
             return 0;
-        } else if (strings_are_equal(execOption, VERSION)){
-          	printf("versión TP1 Organización de computadoras\n");
-          	return 0;
-        } else if (strings_are_equal(execOption, INPUT)){
-            char* in_file = argv[2];
+        } else if (strings_are_equal(execOption, VERSION)) {
+            printf("versión TP1 Organización de computadoras\n");
+            return 0;
+        } else if (strings_are_equal(execOption, INPUT)) {
+            char *in_file = argv[2];
             assert(in_file);
 
             //abro infile
-		    if ((in = fopen(in_file, "r")) == NULL){
+            if (!strings_are_equal(in_file, STD) && (in = fopen(in_file, "r")) == NULL) {
                 fprintf(stderr, "Error al abrir el archivo de entrada");
                 return -1;
-		    }
+            }
 
-            char* out_command = argv[3];
-            char* out_file = argv[4];
+            char *out_command = argv[3];
+            char *out_file = argv[4];
 
             bool presentOutput = strings_are_equal(out_command, OUTPUT);
             bool stdOut = strings_are_equal(out_file, STD);
-            if (presentOutput && !stdOut){
-                if ((out = fopen(out_file, "w+")) == NULL){
+            if (presentOutput && !stdOut) {
+                if ((out = fopen(out_file, "w+")) == NULL) {
                     fprintf(stderr, "Error al abrir el archivo de salida\n");
                     return -1;
                 }
-                out_mode = FILE_MODE;
-                //si el out command es nulo o si quiere que salga por entrada estandar
-            } else if (out_command == NULL || (presentOutput && stdOut)){
-                printf("Mando out a salida estandar\n");
-                out = stdout;
-                out_mode = STDOUT_MODE;
+            } else if (!presentOutput || out_file == NULL) {
+                    out = stdout;
             } else {
-                fprintf(stderr, "Las opciones para el out command son '-o' o nada\n");
+                fprintf(stderr,"Las opciones para el out command son '-o' o nada\n");
                 return -1;
             }
         } else {
-        	fprintf(stderr, "Parametro de entrada invalido");
-        	return -1;
+            fprintf(stderr, "Parametro de entrada invalido\n");
+            return -1;
         }
-	} else {
-		in = stdin;
-		out = stdout;
-		out_mode = STDOUT_MODE;
-	}
+    }
 
-	read_file(in, out, out_mode);
-	return 0;
+
+    read_file(in, out);
+
+    if (in != stdin)
+       fclose(in);
+
+    if (out != stdout){
+        fclose(out);
+    }
+
+    return 0;
 }
-
 
