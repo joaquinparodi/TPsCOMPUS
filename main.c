@@ -111,7 +111,7 @@ void read_file(FILE* in_stream, FILE* out_stream){
 
         letterFound = (vector == NULL);
         if (!letterFound) {
-            //merge(vector, actualVectorLength);
+            merge(vector, amountOfNumbers);
             write_vector(out_stream, vector, amountOfNumbers);
             free(vector);
         } else {
