@@ -17,6 +17,8 @@ void write_vector(FILE* out_stream, int* vector, int length);
 void help();
 bool strings_are_equal(char* str1, char* str2);
 bool check_if_there_are_letters(char* buffer);
+bool endOfLine(char* str);
+void merge(int* array, int size);
 
 
 void help(){
@@ -57,6 +59,10 @@ void check_malloc(int size, void* ptr){
     }
 }
 
+bool endOfLine(char* str){
+    return *str == '\n' || strings_are_equal(str, "\\n");
+}
+
 int* get_numbers(char* line, size_t capacity, int* amountOfNumbers) {
     bool lettersFound = false;
     char* buffer = malloc(capacity * sizeof(char));
@@ -70,7 +76,7 @@ int* get_numbers(char* line, size_t capacity, int* amountOfNumbers) {
     check_malloc(capacity, vector);
 
     int i = 0;
-    for (; ptr != NULL && *ptr != '\n' && !lettersFound; i++) {
+    for (; ptr != NULL && !endOfLine(ptr) && !lettersFound; i++) {
         if (i == capacity){
             capacity += 10;
             vector = (int*)realloc(vector, capacity*sizeof(int));
@@ -104,21 +110,23 @@ void read_file(FILE* in_stream, FILE* out_stream){
     size_t bufSize = 0;
     bool letterFound = false;
 
-    while(!letterFound && (bufSize = getline(&line, &bufSize, in_stream)) != -1 && bufSize != 1){
-        int amountOfNumbers = 0;
-        int *vector = get_numbers(line, bufSize + 1,        //sumo 1 para evitar una lectura invalida en strtok
+    while(!letterFound && (bufSize = getline(&line, &bufSize, in_stream)) != -1){
+	if (bufSize != 1){					//si es un espacio vacio leo la siguiente linea.
+             int amountOfNumbers = 0;
+             int *vector = get_numbers(line, bufSize + 1,        //sumo 1 para evitar una lectura invalida en strtok
                                       &amountOfNumbers);
 
-        letterFound = (vector == NULL);
-        if (!letterFound) {
-            merge(vector, amountOfNumbers);
-            write_vector(out_stream, vector, amountOfNumbers);
-            free(vector);
-        } else {
-            fprintf(stderr, "Se encontro una letra en el programa y se procede al cierre ordenado\n");
-        }
+             letterFound = (vector == NULL);
+             if (!letterFound) {
+            	merge(vector, amountOfNumbers);
+            	write_vector(out_stream, vector, amountOfNumbers);
+           	free(vector);
+       	     } else {
+            	fprintf(stderr, "Se encontro una letra en el programa y se procede al cierre ordenado\n");
+             }
+    	}
     }
-    free(line);
+    free(line); 
 }
 
 

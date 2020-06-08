@@ -51,6 +51,7 @@ create_temporal_array:
 	lw	a0,68(fp)		#a0: max size
 	sll	a0,a0,2			#sizex4
 	jal	mymalloc
+	beqz	v0,return_merge_sort	#Si la direcci√n devuelta por mymalloc es nula, vuelve al main.
 	sw	v0,TEMPORAL_OFFSET(fp)	#temporal array
 
 
