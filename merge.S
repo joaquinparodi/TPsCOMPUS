@@ -33,6 +33,7 @@ call_merge:
 	jal merge_sort
 
 fin:
+	li	v0,0		#si llegue acá es porque no hubo errores.
 	lw	ra,MERGE_RA_OFFSET(sp)
 	lw	fp,MERGE_FP_OFFSET(sp)
 	addu	sp,sp,MERGE_STACK_SIZE
