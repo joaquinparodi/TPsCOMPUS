@@ -77,7 +77,6 @@ int* get_numbers(char* line, size_t capacity, int* amountOfNumbers) {
     check_malloc(capacity, vector);
 
     int i = 0;
-    //
     for (; ptr != NULL && !endOfLine(ptr) && !lettersFound; i++) {
         if (i == capacity){
             capacity += 10;
@@ -114,7 +113,6 @@ void read_file(FILE* in_stream, FILE* out_stream){
     bool error = false;
 
     while(!letterFound && !error && (bufSize = getline(&line, &bufSize, in_stream)) != -1){
-        printf("Line %s con size %ld\n", line, bufSize);
         if (bufSize != 1 || line[0] != ' '){					//si es un espacio vacio leo la siguiente linea.
             int amountOfNumbers = 0;
             int *vector = get_numbers(line, bufSize + 1,        //sumo 1 para evitar una lectura invalida en strtok
